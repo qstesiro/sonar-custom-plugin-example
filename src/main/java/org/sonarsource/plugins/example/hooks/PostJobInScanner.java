@@ -27,15 +27,22 @@ import org.sonar.api.utils.log.Loggers;
 
 public class PostJobInScanner implements PostJob {
 
-  private static final Logger LOGGER = Loggers.get(PostJobInScanner.class);
+    private static final Logger LOGGER = Loggers.get(PostJobInScanner.class);
 
-  @Override
-  public void describe(PostJobDescriptor descriptor) {
-    descriptor.name("After scan");
-  }
+    public PostJobInScanner() {
+        super();
+        LOGGER.info("--- PostJobInScanner.PostJobInScanner");
+    }
 
-  @Override
-  public void execute(PostJobContext context) {
-    LOGGER.info("Something to do after the analysis report has been submitted");
-  }
+    @Override
+    public void describe(PostJobDescriptor descriptor) {
+        LOGGER.info("--- PostJobInScanner.describe");
+        descriptor.name("After scan");
+    }
+
+    @Override
+    public void execute(PostJobContext context) {
+        LOGGER.info("--- PostJobInScanner.execute");
+        LOGGER.info("Something to do after the analysis report has been submitted");
+    }
 }

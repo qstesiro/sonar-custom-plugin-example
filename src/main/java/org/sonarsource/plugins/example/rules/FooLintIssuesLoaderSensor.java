@@ -44,163 +44,178 @@ import org.sonarsource.plugins.example.languages.FooLanguage;
  */
 public class FooLintIssuesLoaderSensor implements Sensor {
 
-  private static final Logger LOGGER = Loggers.get(FooLintIssuesLoaderSensor.class);
+    private static final Logger LOGGER = Loggers.get(FooLintIssuesLoaderSensor.class);
 
-  protected static final String REPORT_PATH_KEY = "sonar.foolint.reportPath";
+    protected static final String REPORT_PATH_KEY = "sonar.foolint.reportPath";
 
-  protected final Configuration config;
-  protected final FileSystem fileSystem;
-  protected SensorContext context;
+    protected final Configuration config;
+    protected final FileSystem fileSystem;
+    protected SensorContext context;
 
-  /**
-   * Use of IoC to get Settings, FileSystem, RuleFinder and ResourcePerspectives
-   */
-  public FooLintIssuesLoaderSensor(final Configuration config, final FileSystem fileSystem) {
-    this.config = config;
-    this.fileSystem = fileSystem;
-  }
-
-  @Override
-  public void describe(final SensorDescriptor descriptor) {
-    descriptor.name("FooLint Issues Loader Sensor");
-    descriptor.onlyOnLanguage(FooLanguage.KEY);
-  }
-
-  protected String reportPathKey() {
-    return REPORT_PATH_KEY;
-  }
-
-  protected String getReportPath() {
-    Optional<String> o = config.get(reportPathKey());
-    if (o.isPresent()) {
-      return o.get();
-    }
-    return null;
-  }
-
-  @Override
-  public void execute(final SensorContext context) {
-    String reportPath = getReportPath();
-    if (reportPath != null) {
-      this.context = context;
-      File analysisResultsFile = new File(reportPath);
-      try {
-        parseAndSaveResults(analysisResultsFile);
-      } catch (XMLStreamException e) {
-        throw new IllegalStateException("Unable to parse the provided FooLint file", e);
-      }
-    }
-  }
-
-  protected void parseAndSaveResults(final File file) throws XMLStreamException {
-    LOGGER.info("(mock) Parsing 'FooLint' Analysis Results");
-    FooLintAnalysisResultsParser parser = new FooLintAnalysisResultsParser();
-    List<ErrorDataFromExternalLinter> errors = parser.parse(file);
-    for (ErrorDataFromExternalLinter error : errors) {
-      getResourceAndSaveIssue(error);
-    }
-  }
-
-  private void getResourceAndSaveIssue(final ErrorDataFromExternalLinter error) {
-    LOGGER.debug(error.toString());
-
-    InputFile inputFile = fileSystem.inputFile(
-      fileSystem.predicates().and(
-        fileSystem.predicates().hasRelativePath(error.getFilePath()),
-        fileSystem.predicates().hasType(InputFile.Type.MAIN)));
-
-    LOGGER.debug("inputFile null ? " + (inputFile == null));
-
-    if (inputFile != null) {
-      saveIssue(inputFile, error.getLine(), error.getType(), error.getDescription());
-    } else {
-      LOGGER.error("Not able to find a InputFile with " + error.getFilePath());
-    }
-  }
-
-  private void saveIssue(final InputFile inputFile, int line, final String externalRuleKey, final String message) {
-    RuleKey ruleKey = RuleKey.of(getRepositoryKeyForLanguage(inputFile.language()), externalRuleKey);
-
-    NewIssue newIssue = context.newIssue()
-      .forRule(ruleKey);
-
-    NewIssueLocation primaryLocation = newIssue.newLocation()
-      .on(inputFile)
-      .message(message);
-    if (line > 0) {
-      primaryLocation.at(inputFile.selectLine(line));
-    }
-    newIssue.at(primaryLocation);
-
-    newIssue.save();
-  }
-
-  private static String getRepositoryKeyForLanguage(String languageKey) {
-    return languageKey.toLowerCase() + "-" + FooLintRulesDefinition.KEY;
-  }
-
-  @Override
-  public String toString() {
-    return "FooLintIssuesLoaderSensor";
-  }
-
-  private class ErrorDataFromExternalLinter {
-
-    private final String externalRuleId;
-    private final String issueMessage;
-    private final String filePath;
-    private final int line;
-
-    public ErrorDataFromExternalLinter(final String externalRuleId, final String issueMessage, final String filePath, final int line) {
-      this.externalRuleId = externalRuleId;
-      this.issueMessage = issueMessage;
-      this.filePath = filePath;
-      this.line = line;
+    /**
+     * Use of IoC to get Settings, FileSystem, RuleFinder and ResourcePerspectives
+     */
+    public FooLintIssuesLoaderSensor(final Configuration config, final FileSystem fileSystem) {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.FooLintIssuesLoaderSensor");
+        this.config = config;
+        this.fileSystem = fileSystem;
     }
 
-    public String getType() {
-      return externalRuleId;
+    @Override
+    public void describe(final SensorDescriptor descriptor) {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.describe");
+        descriptor.name("FooLint Issues Loader Sensor");
+        descriptor.onlyOnLanguage(FooLanguage.KEY);
     }
 
-    public String getDescription() {
-      return issueMessage;
+    protected String reportPathKey() {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.reportPathKey");
+        return REPORT_PATH_KEY;
     }
 
-    public String getFilePath() {
-      return filePath;
+    protected String getReportPath() {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.getReportPath");
+        Optional<String> o = config.get(reportPathKey());
+        if (o.isPresent()) {
+            return o.get();
+        }
+        return null;
     }
 
-    public int getLine() {
-      return line;
+    @Override
+    public void execute(final SensorContext context) {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.execute");
+        String reportPath = getReportPath();
+        if (reportPath != null) {
+            this.context = context;
+            File analysisResultsFile = new File(reportPath);
+            try {
+                parseAndSaveResults(analysisResultsFile);
+            } catch (XMLStreamException e) {
+                throw new IllegalStateException("Unable to parse the provided FooLint file", e);
+            }
+        }
+    }
+
+    protected void parseAndSaveResults(final File file) throws XMLStreamException {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.parseAndSaveResults");
+        LOGGER.info("(mock) Parsing 'FooLint' Analysis Results");
+        FooLintAnalysisResultsParser parser = new FooLintAnalysisResultsParser();
+        List<ErrorDataFromExternalLinter> errors = parser.parse(file);
+        for (ErrorDataFromExternalLinter error : errors) {
+            getResourceAndSaveIssue(error);
+        }
+    }
+
+    private void getResourceAndSaveIssue(final ErrorDataFromExternalLinter error) {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.getResourceAndSaveIssue");
+        LOGGER.debug(error.toString());
+
+        InputFile inputFile = fileSystem.inputFile(
+            fileSystem.predicates().and(
+                fileSystem.predicates().hasRelativePath(error.getFilePath()),
+                fileSystem.predicates().hasType(InputFile.Type.MAIN)));
+
+        LOGGER.debug("inputFile null ? " + (inputFile == null));
+
+        if (inputFile != null) {
+            saveIssue(inputFile, error.getLine(), error.getType(), error.getDescription());
+        } else {
+            LOGGER.error("Not able to find a InputFile with " + error.getFilePath());
+        }
+    }
+
+    private void saveIssue(final InputFile inputFile, int line, final String externalRuleKey, final String message) {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.saveIssue");
+        RuleKey ruleKey = RuleKey.of(getRepositoryKeyForLanguage(inputFile.language()), externalRuleKey);
+
+        NewIssue newIssue = context.newIssue()
+            .forRule(ruleKey);
+
+        NewIssueLocation primaryLocation = newIssue.newLocation()
+            .on(inputFile)
+            .message(message);
+        if (line > 0) {
+            primaryLocation.at(inputFile.selectLine(line));
+        }
+        newIssue.at(primaryLocation);
+
+        newIssue.save();
+    }
+
+    private static String getRepositoryKeyForLanguage(String languageKey) {
+        LOGGER.info("--- FooLintIssuesLoaderSensor.getRepositoryKeyForLanguage");
+        return languageKey.toLowerCase() + "-" + FooLintRulesDefinition.KEY;
     }
 
     @Override
     public String toString() {
-      StringBuilder s = new StringBuilder();
-      s.append(externalRuleId);
-      s.append("|");
-      s.append(issueMessage);
-      s.append("|");
-      s.append(filePath);
-      s.append("(");
-      s.append(line);
-      s.append(")");
-      return s.toString();
+        return "FooLintIssuesLoaderSensor";
     }
-  }
 
-  private class FooLintAnalysisResultsParser {
+    private class ErrorDataFromExternalLinter {
 
-    public List<ErrorDataFromExternalLinter> parse(final File file) throws XMLStreamException {
-      LOGGER.info("Parsing file {}", file.getAbsolutePath());
+        private final String externalRuleId;
+        private final String issueMessage;
+        private final String filePath;
+        private final int line;
 
-      // as the goal of this example is not to demonstrate how to parse an xml file we return an hard coded list of FooError
+        public ErrorDataFromExternalLinter(final String externalRuleId, final String issueMessage, final String filePath, final int line) {
+            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.ErrorDataFromExternalLinter");
+            this.externalRuleId = externalRuleId;
+            this.issueMessage = issueMessage;
+            this.filePath = filePath;
+            this.line = line;
+        }
 
-      ErrorDataFromExternalLinter fooError1 = new ErrorDataFromExternalLinter("ExampleRule1", "More precise description of the error", "src/MyClass.foo", 5);
-      ErrorDataFromExternalLinter fooError2 = new ErrorDataFromExternalLinter("ExampleRule2", "More precise description of the error", "src/MyClass.foo", 9);
+        public String getType() {
+            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getType");
+            return externalRuleId;
+        }
 
-      return Arrays.asList(fooError1, fooError2);
+        public String getDescription() {
+            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getDescription");
+            return issueMessage;
+        }
+
+        public String getFilePath() {
+            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getFilePath");
+            return filePath;
+        }
+
+        public int getLine() {
+            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getLine");
+            return line;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder s = new StringBuilder();
+            s.append(externalRuleId);
+            s.append("|");
+            s.append(issueMessage);
+            s.append("|");
+            s.append(filePath);
+            s.append("(");
+            s.append(line);
+            s.append(")");
+            return s.toString();
+        }
     }
-  }
+
+    private class FooLintAnalysisResultsParser {
+
+        public List<ErrorDataFromExternalLinter> parse(final File file) throws XMLStreamException {
+            LOGGER.info("--- FooLintIssuesLoaderSensor.FooLintAnalysisResultsParser.parse");
+            LOGGER.info("Parsing file {}", file.getAbsolutePath());
+
+            // as the goal of this example is not to demonstrate how to parse an xml file we return an hard coded list of FooError
+
+            ErrorDataFromExternalLinter fooError1 = new ErrorDataFromExternalLinter("ExampleRule1", "More precise description of the error", "src/MyClass.foo", 5);
+            ErrorDataFromExternalLinter fooError2 = new ErrorDataFromExternalLinter("ExampleRule2", "More precise description of the error", "src/MyClass.foo", 9);
+
+            return Arrays.asList(fooError1, fooError2);
+        }
+    }
 
 }

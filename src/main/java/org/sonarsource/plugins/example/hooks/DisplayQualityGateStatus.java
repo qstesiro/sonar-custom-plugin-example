@@ -21,6 +21,7 @@ package org.sonarsource.plugins.example.hooks;
 
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.QualityGate;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 /**
@@ -29,16 +30,25 @@ import org.sonar.api.utils.log.Loggers;
  * A real use-case would be to send an email or to notify an IRC channel.
  */
 public class DisplayQualityGateStatus implements PostProjectAnalysisTask {
-  @Override
-  public void finished(ProjectAnalysis analysis) {
-    QualityGate gate = analysis.getQualityGate();
-    if (gate != null) {
-      Loggers.get(getClass()).info("Quality gate is " + gate.getStatus());
-    }
-  }
 
-  @Override
-  public String getDescription() {
-    return "Display Quality Gate status";
-  }
+    private static final Logger LOGGER = Loggers.get(DisplayQualityGateStatus.class);
+
+    public DisplayQualityGateStatus() {
+        LOGGER.info("--- DisplyQualityGateStatus.DisplayQualityGateStatus");
+    }
+
+    @Override
+    public void finished(ProjectAnalysis analysis) {
+        LOGGER.info("--- DisplyQualityGateStatus.finished");
+        QualityGate gate = analysis.getQualityGate();
+        if (gate != null) {
+            Loggers.get(getClass()).info("Quality gate is " + gate.getStatus());
+        }
+    }
+
+    @Override
+    public String getDescription() {
+        LOGGER.info("--- DisplyQualityGateStatus.getDescription");
+        return "Display Quality Gate status";
+    }
 }

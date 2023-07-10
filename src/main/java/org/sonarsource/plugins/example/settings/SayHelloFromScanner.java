@@ -26,17 +26,19 @@ import org.sonar.api.utils.log.Loggers;
 
 public class SayHelloFromScanner implements Sensor {
 
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor.name(getClass().getName());
-  }
-
-  @Override
-  public void execute(SensorContext context) {
-    if (context.config().getBoolean(HelloWorldProperties.HELLO_KEY).orElse(false)) {
-      // print log only if property is set to true
-      Loggers.get(getClass()).info("Hello World!");
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+        Loggers.get(getClass()).info("--- SayHelloFromScanner.describe");
+        descriptor.name(getClass().getName());
     }
-  }
+
+    @Override
+    public void execute(SensorContext context) {
+        Loggers.get(getClass()).info("--- SayHelloFromScanner.execute");
+        if (context.config().getBoolean(HelloWorldProperties.HELLO_KEY).orElse(false)) {
+            // print log only if property is set to true
+            Loggers.get(getClass()).info("Hello World!");
+        }
+    }
 
 }

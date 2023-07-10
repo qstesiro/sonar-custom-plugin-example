@@ -21,26 +21,32 @@ package org.sonarsource.plugins.example.settings;
 
 import java.util.List;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static java.util.Arrays.asList;
 
 public class HelloWorldProperties {
 
-  public static final String HELLO_KEY = "sonar.example.hello";
-  public static final String CATEGORY = "Properties Example";
+    private static final Logger LOGGER = Loggers.get(HelloWorldProperties.class);
 
-  private HelloWorldProperties() {
-    // only statics
-  }
+    public static final String HELLO_KEY = "sonar.example.hello";
+    public static final String CATEGORY = "Properties Example";
 
-  public static List<PropertyDefinition> getProperties() {
-    return asList(
-      PropertyDefinition.builder(HELLO_KEY)
-        .name("Hello")
-        .description("Say Hello")
-        .defaultValue(String.valueOf(false))
-        .category(CATEGORY)
-        .build());
-  }
+    private HelloWorldProperties() {
+        LOGGER.info("--- HelloWorldProperties.HelloWorldProperties");
+        // only statics
+    }
+
+    public static List<PropertyDefinition> getProperties() {
+        LOGGER.info("--- HelloWorldProperties.getProperties");
+        return asList(
+            PropertyDefinition.builder(HELLO_KEY)
+            .name("Hello")
+            .description("Say Hello")
+            .defaultValue(String.valueOf(false))
+            .category(CATEGORY)
+            .build());
+    }
 
 }

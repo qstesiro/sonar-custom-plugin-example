@@ -24,36 +24,43 @@ import java.nio.charset.StandardCharsets;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonarsource.plugins.example.languages.FooLanguage;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public final class FooLintRulesDefinition implements RulesDefinition {
 
-  private static final String PATH_TO_RULES_XML = "/example/foolint-rules.xml";
+    private static final Logger LOGGER = Loggers.get(FooLintRulesDefinition.class);
 
-  protected static final String KEY = "foolint";
-  protected static final String NAME = "FooLint";
+    private static final String PATH_TO_RULES_XML = "/example/foolint-rules.xml";
 
-  public static final String REPO_KEY = FooLanguage.KEY + "-" + KEY;
-  protected static final String REPO_NAME = FooLanguage.KEY + "-" + NAME;
+    protected static final String KEY = "foolint";
+    protected static final String NAME = "FooLint";
 
-  protected String rulesDefinitionFilePath() {
-    return PATH_TO_RULES_XML;
-  }
+    public static final String REPO_KEY = FooLanguage.KEY + "-" + KEY;
+    protected static final String REPO_NAME = FooLanguage.KEY + "-" + NAME;
 
-  private void defineRulesForLanguage(Context context, String repositoryKey, String repositoryName, String languageKey) {
-    NewRepository repository = context.createRepository(repositoryKey, languageKey).setName(repositoryName);
-
-    InputStream rulesXml = this.getClass().getResourceAsStream(rulesDefinitionFilePath());
-    if (rulesXml != null) {
-      RulesDefinitionXmlLoader rulesLoader = new RulesDefinitionXmlLoader();
-      rulesLoader.load(repository, rulesXml, StandardCharsets.UTF_8.name());
+    protected String rulesDefinitionFilePath() {
+        LOGGER.info("--- FooLintRulesDefinition.rulesDefinitionFilePath");
+        return PATH_TO_RULES_XML;
     }
 
-    repository.done();
-  }
+    private void defineRulesForLanguage(Context context, String repositoryKey, String repositoryName, String languageKey) {
+        LOGGER.info("--- FooLintRulesDefinition.defineRulesForLanguage");
+        NewRepository repository = context.createRepository(repositoryKey, languageKey).setName(repositoryName);
 
-  @Override
-  public void define(Context context) {
-    defineRulesForLanguage(context, REPO_KEY, REPO_NAME, FooLanguage.KEY);
-  }
+        InputStream rulesXml = this.getClass().getResourceAsStream(rulesDefinitionFilePath());
+        if (rulesXml != null) {
+            RulesDefinitionXmlLoader rulesLoader = new RulesDefinitionXmlLoader();
+            rulesLoader.load(repository, rulesXml, StandardCharsets.UTF_8.name());
+        }
+
+        repository.done();
+    }
+
+    @Override
+    public void define(Context context) {
+        LOGGER.info("--- FooLintRulesDefinition.define");
+        defineRulesForLanguage(context, REPO_KEY, REPO_NAME, FooLanguage.KEY);
+    }
 
 }

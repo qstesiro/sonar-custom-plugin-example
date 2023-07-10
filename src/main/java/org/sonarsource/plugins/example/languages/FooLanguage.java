@@ -22,25 +22,31 @@ package org.sonarsource.plugins.example.languages;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonarsource.plugins.example.settings.FooLanguageProperties;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * This class defines the fictive Foo language.
  */
 public final class FooLanguage extends AbstractLanguage {
 
-  public static final String NAME = "Foo";
-  public static final String KEY = "foo";
+    private static final Logger LOGGER = Loggers.get(FooLanguage.class);
 
-  private final Configuration config;
+    public static final String NAME = "Foo";
+    public static final String KEY = "foo";
 
-  public FooLanguage(Configuration config) {
-    super(KEY, NAME);
-    this.config = config;
-  }
+    private final Configuration config;
 
-  @Override
-  public String[] getFileSuffixes() {
-    return config.getStringArray(FooLanguageProperties.FILE_SUFFIXES_KEY);
-  }
+    public FooLanguage(Configuration config) {
+        super(KEY, NAME);
+        LOGGER.info("--- FooLanguage.FooLanguage");
+        this.config = config;
+    }
+
+    @Override
+    public String[] getFileSuffixes() {
+        LOGGER.info("--- FooLanguage.getFileSuffixes");
+        return config.getStringArray(FooLanguageProperties.FILE_SUFFIXES_KEY);
+    }
 
 }

@@ -26,6 +26,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * Generates issues on all java files at line 1. This rule
@@ -33,39 +35,43 @@ import org.sonar.api.batch.sensor.issue.NewIssueLocation;
  */
 public class CreateIssuesOnJavaFilesSensor implements Sensor {
 
-  private static final double ARBITRARY_GAP = 2.0;
-  private static final int LINE_1 = 1;
+    private static final Logger LOGGER = Loggers.get(CreateIssuesOnJavaFilesSensor.class);
 
-  @Override
-  public void describe(SensorDescriptor descriptor) {
-    descriptor.name("Add issues on line 1 of all Java files");
+    private static final double ARBITRARY_GAP = 2.0;
+    private static final int LINE_1 = 1;
 
-    // optimisation to disable execution of sensor if project does
-    // not contain Java files or if the example rule is not activated
-    // in the Quality profile
-    descriptor.onlyOnLanguage("java");
-    descriptor.createIssuesForRuleRepositories(JavaRulesDefinition.REPOSITORY);
-  }
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+        LOGGER.info("--- CreateIssuesOnJavaFilesSensor.describe");
+        descriptor.name("Add issues on line 1 of all Java files");
 
-  @Override
-  public void execute(SensorContext context) {
-    FileSystem fs = context.fileSystem();
-    Iterable<InputFile> javaFiles = fs.inputFiles(fs.predicates().hasLanguage("java"));
-    for (InputFile javaFile : javaFiles) {
-      // no need to define the severity as it is automatically set according
-      // to the configured Quality profile
-      NewIssue newIssue = context.newIssue()
-        .forRule(JavaRulesDefinition.RULE_ON_LINE_1)
-
-        // gap is used to estimate the remediation cost to fix the debt
-        .gap(ARBITRARY_GAP);
-
-      NewIssueLocation primaryLocation = newIssue.newLocation()
-        .on(javaFile)
-        .at(javaFile.selectLine(LINE_1))
-        .message("You can't do anything. This is first line!");
-      newIssue.at(primaryLocation);
-      newIssue.save();
+        // optimisation to disable execution of sensor if project does
+        // not contain Java files or if the example rule is not activated
+        // in the Quality profile
+        descriptor.onlyOnLanguage("java");
+        descriptor.createIssuesForRuleRepositories(JavaRulesDefinition.REPOSITORY);
     }
-  }
+
+    @Override
+    public void execute(SensorContext context) {
+        LOGGER.info("--- CreateIssuesOnJavaFilesSensor.execute");
+        FileSystem fs = context.fileSystem();
+        Iterable<InputFile> javaFiles = fs.inputFiles(fs.predicates().hasLanguage("java"));
+        for (InputFile javaFile : javaFiles) {
+            // no need to define the severity as it is automatically set according
+            // to the configured Quality profile
+            NewIssue newIssue = context
+                .newIssue()
+                .forRule(JavaRulesDefinition.RULE_ON_LINE_1)
+                .gap(ARBITRARY_GAP); // gap is used to estimate the remediation cost to fix the debt
+
+            NewIssueLocation primaryLocation = newIssue
+                .newLocation()
+                .on(javaFile)
+                .at(javaFile.selectLine(LINE_1))
+                .message("You can't do anything. This is first line!");
+            newIssue.at(primaryLocation);
+            newIssue.save();
+        }
+    }
 }
