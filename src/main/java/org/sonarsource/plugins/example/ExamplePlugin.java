@@ -25,22 +25,25 @@ import org.sonarsource.plugins.example.hooks.PostJobInScanner;
 import org.sonarsource.plugins.example.hooks.DisplayQualityGateStatus;
 import org.sonarsource.plugins.example.languages.FooLanguage;
 import org.sonarsource.plugins.example.languages.FooQualityProfile;
+import org.sonarsource.plugins.example.languages.HmmLanguage;
+import org.sonarsource.plugins.example.languages.HmmQualityProfile;
 import org.sonarsource.plugins.example.measures.ComputeSizeAverage;
 import org.sonarsource.plugins.example.measures.ComputeSizeRating;
 import org.sonarsource.plugins.example.measures.ExampleMetrics;
 import org.sonarsource.plugins.example.measures.SetSizeOnFilesSensor;
 import org.sonarsource.plugins.example.rules.CreateIssuesOnJavaFilesSensor;
 import org.sonarsource.plugins.example.rules.FooLintIssuesLoaderSensor;
-import org.sonarsource.plugins.example.rules.FooLintRulesDefinition;
+import org.sonarsource.plugins.example.rules.HmmLintIssuesLoaderSensor;
 import org.sonarsource.plugins.example.rules.JavaRulesDefinition;
+import org.sonarsource.plugins.example.rules.FooLintRulesDefinition;
+import org.sonarsource.plugins.example.rules.HmmLintRulesDefinition;
 import org.sonarsource.plugins.example.settings.FooLanguageProperties;
+import org.sonarsource.plugins.example.settings.HmmLanguageProperties;
 import org.sonarsource.plugins.example.settings.HelloWorldProperties;
 import org.sonarsource.plugins.example.settings.SayHelloFromScanner;
 import org.sonarsource.plugins.example.web.MyPluginPageDefinition;
 
 import org.sonar.api.utils.log.Loggers;
-
-import static java.util.Arrays.asList;
 
 /**
  * This class is the entry point for all extensions. It is referenced in pom.xml.
@@ -49,16 +52,26 @@ public class ExamplePlugin implements Plugin {
 
     @Override
     public void define(Context context) {
-        Loggers.get(getClass()).info("--- ExamplePlugin.ExamplePlugin"); // @1
-        // tutorial on hooks
-        // http://docs.sonarqube.org/display/DEV/Adding+Hooks
-        context.addExtensions(PostJobInScanner.class,
-                              DisplayQualityGateStatus.class);
+        Loggers.get(getClass()).info("--- ExamplePlugin.ExamplePlugin");
 
+        // 包含配置相关
         // tutorial on languages
-        context.addExtensions(FooLanguage.class,
-                              FooQualityProfile.class); // @4
-        context.addExtensions(FooLanguageProperties.getProperties()); // @2
+        context.addExtensions(FooLanguage.class, FooQualityProfile.class);
+        context.addExtensions(FooLanguageProperties.getProperties()); // addExtensions(java.util.Collection)
+        // debug ???
+        context.addExtensions(HmmLanguage.class, HmmQualityProfile.class);
+        context.addExtensions(HmmLanguageProperties.getProperties()); // addExtensions(java.util.Collection)
+
+        // tutorial on rules
+        // 编码实现规则
+        context.addExtensions(JavaRulesDefinition.class,
+                              CreateIssuesOnJavaFilesSensor.class);
+        // 配置文件实现规则
+        context.addExtensions(FooLintRulesDefinition.class,
+                              FooLintIssuesLoaderSensor.class);
+        // debug ???
+        context.addExtensions(HmmLintRulesDefinition.class,
+                              HmmLintIssuesLoaderSensor.class);
 
         // tutorial on measures
         context.addExtensions(ExampleMetrics.class,
@@ -66,18 +79,17 @@ public class ExamplePlugin implements Plugin {
                               ComputeSizeAverage.class,
                               ComputeSizeRating.class);
 
-        // tutorial on rules
-        context.addExtensions(JavaRulesDefinition.class,
-                              CreateIssuesOnJavaFilesSensor.class);
-        context.addExtensions(FooLintRulesDefinition.class,
-                              FooLintIssuesLoaderSensor.class);
+        // tutorial on hooks
+        // http://docs.sonarqube.org/display/DEV/Adding+Hooks
+        context.addExtensions(PostJobInScanner.class,
+                              DisplayQualityGateStatus.class);
 
         // tutorial on settings
-        context
-            .addExtensions(HelloWorldProperties.getProperties()) // @3
-            .addExtension(SayHelloFromScanner.class);
+        // 配置相关
+        context.addExtensions(HelloWorldProperties.getProperties());
+        context.addExtension(SayHelloFromScanner.class);
 
         // tutorial on web extensions
-        context.addExtension(MyPluginPageDefinition.class); // @5
+        context.addExtension(MyPluginPageDefinition.class);
     }
 }

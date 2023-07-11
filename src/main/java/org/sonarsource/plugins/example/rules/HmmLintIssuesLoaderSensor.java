@@ -35,18 +35,18 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonarsource.plugins.example.languages.FooLanguage;
+import org.sonarsource.plugins.example.languages.HmmLanguage;
 
 /**
- * The goal of this Sensor is to load the results of an analysis performed by a fictive external tool named: FooLint
+ * The goal of this Sensor is to load the results of an analysis performed by a fictive external tool named: HmmLint
  * Results are provided as an xml file and are corresponding to the rules defined in 'rules.xml'.
- * To be very abstract, these rules are applied on source files made with the fictive language Foo.
+ * To be very abstract, these rules are applied on source files made with the fictive language Hmm.
  */
-public class FooLintIssuesLoaderSensor implements Sensor {
+public class HmmLintIssuesLoaderSensor implements Sensor {
 
     private static final Logger LOGGER = Loggers.get(FooLintIssuesLoaderSensor.class);
 
-    protected static final String REPORT_PATH_KEY = "sonar.foolint.reportPath";
+    protected static final String REPORT_PATH_KEY = "sonar.hmmlint.reportPath";
 
     protected final Configuration config;
     protected final FileSystem fileSystem;
@@ -55,22 +55,22 @@ public class FooLintIssuesLoaderSensor implements Sensor {
     /**
      * Use of IoC to get Settings, FileSystem, RuleFinder and ResourcePerspectives
      */
-    public FooLintIssuesLoaderSensor(final Configuration config, final FileSystem fileSystem) {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.FooLintIssuesLoaderSensor");
+    public HmmLintIssuesLoaderSensor(final Configuration config, final FileSystem fileSystem) {
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.HmmLintIssuesLoaderSensor");
         this.config = config;
         this.fileSystem = fileSystem;
     }
 
     @Override
     public void describe(final SensorDescriptor descriptor) {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.describe");
-        descriptor.name("FooLint Issues Loader Sensor");
-        descriptor.onlyOnLanguage(FooLanguage.KEY);
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.describe");
+        descriptor.name("HmmLint Issues Loader Sensor");
+        descriptor.onlyOnLanguage(HmmLanguage.KEY);
     }
 
     @Override
     public void execute(final SensorContext context) {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.execute");
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.execute");
         String reportPath = getReportPath();
         if (reportPath != null) {
             this.context = context;
@@ -84,7 +84,7 @@ public class FooLintIssuesLoaderSensor implements Sensor {
     }
 
     protected String getReportPath() {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.getReportPath");
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.getReportPath");
         Optional<String> o = config.get(reportPathKey());
         if (o.isPresent()) {
             return o.get();
@@ -93,14 +93,14 @@ public class FooLintIssuesLoaderSensor implements Sensor {
     }
 
     protected String reportPathKey() {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.reportPathKey");
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.reportPathKey");
         return REPORT_PATH_KEY;
     }
 
     protected void parseAndSaveResults(final File file) throws XMLStreamException {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.parseAndSaveResults");
-        LOGGER.info("(mock) Parsing 'FooLint' Analysis Results");
-        FooLintAnalysisResultsParser parser = new FooLintAnalysisResultsParser();
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.parseAndSaveResults");
+        LOGGER.info("(mock) Parsing 'HmmLint' Analysis Results");
+        HmmLintAnalysisResultsParser parser = new HmmLintAnalysisResultsParser();
         List<ErrorDataFromExternalLinter> errors = parser.parse(file);
         for (ErrorDataFromExternalLinter error : errors) {
             getResourceAndSaveIssue(error);
@@ -108,13 +108,15 @@ public class FooLintIssuesLoaderSensor implements Sensor {
     }
 
     private void getResourceAndSaveIssue(final ErrorDataFromExternalLinter error) {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.getResourceAndSaveIssue");
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.getResourceAndSaveIssue");
         LOGGER.debug(error.toString());
 
         InputFile inputFile = fileSystem.inputFile(
             fileSystem.predicates().and(
                 fileSystem.predicates().hasRelativePath(error.getFilePath()),
-                fileSystem.predicates().hasType(InputFile.Type.MAIN)));
+                fileSystem.predicates().hasType(InputFile.Type.MAIN)
+                )
+            );
 
         LOGGER.debug("inputFile null ? " + (inputFile == null));
 
@@ -126,15 +128,10 @@ public class FooLintIssuesLoaderSensor implements Sensor {
     }
 
     private void saveIssue(final InputFile inputFile, int line, final String externalRuleKey, final String message) {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.saveIssue");
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.saveIssue");
         RuleKey ruleKey = RuleKey.of(getRepositoryKeyForLanguage(inputFile.language()), externalRuleKey);
-
-        NewIssue newIssue = context.newIssue()
-            .forRule(ruleKey);
-
-        NewIssueLocation primaryLocation = newIssue.newLocation()
-            .on(inputFile)
-            .message(message);
+        NewIssue newIssue = context.newIssue().forRule(ruleKey);
+        NewIssueLocation primaryLocation = newIssue.newLocation().on(inputFile).message(message);
         if (line > 0) {
             primaryLocation.at(inputFile.selectLine(line));
         }
@@ -143,28 +140,29 @@ public class FooLintIssuesLoaderSensor implements Sensor {
         newIssue.save();
     }
 
+    // 获取规则key(规则key正常是repository:key)
     private static String getRepositoryKeyForLanguage(String languageKey) {
-        LOGGER.info("--- FooLintIssuesLoaderSensor.getRepositoryKeyForLanguage");
-        return languageKey.toLowerCase() + "-" + FooLintRulesDefinition.KEY;
+        LOGGER.info("--- HmmLintIssuesLoaderSensor.getRepositoryKeyForLanguage");
+        return languageKey.toLowerCase() + "-" + HmmLintRulesDefinition.KEY;
     }
 
     @Override
     public String toString() {
-        return "FooLintIssuesLoaderSensor";
+        return "HmmLintIssuesLoaderSensor";
     }
 
-    private class FooLintAnalysisResultsParser {
+    private class HmmLintAnalysisResultsParser {
 
         public List<ErrorDataFromExternalLinter> parse(final File file) throws XMLStreamException {
-            LOGGER.info("--- FooLintIssuesLoaderSensor.FooLintAnalysisResultsParser.parse");
+            LOGGER.info("--- HmmLintIssuesLoaderSensor.FooLintAnalysisResultsParser.parse");
             LOGGER.info("Parsing file {}", file.getAbsolutePath());
 
             // as the goal of this example is not to demonstrate how to parse an xml file we return an hard coded list of FooError
 
-            ErrorDataFromExternalLinter fooError1 = new ErrorDataFromExternalLinter("ExampleRule1", "More precise description of the error", "src/MyClass.foo", 5);
-            ErrorDataFromExternalLinter fooError2 = new ErrorDataFromExternalLinter("ExampleRule2", "More precise description of the error", "src/MyClass.foo", 9);
+            ErrorDataFromExternalLinter hmmError1 = new ErrorDataFromExternalLinter("HmmRule1", "More precise description of the error", "src/MyClass.hmm", 5);
+            ErrorDataFromExternalLinter hmmError2 = new ErrorDataFromExternalLinter("HmmRule2", "More precise description of the error", "src/MyClass.hmm", 9);
 
-            return Arrays.asList(fooError1, fooError2);
+            return Arrays.asList(hmmError1, hmmError2);
         }
     }
 
@@ -176,7 +174,7 @@ public class FooLintIssuesLoaderSensor implements Sensor {
         private final int line;
 
         public ErrorDataFromExternalLinter(final String externalRuleId, final String issueMessage, final String filePath, final int line) {
-            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.ErrorDataFromExternalLinter");
+            LOGGER.info("--- HmmLintIssuesLoaderSensor.ErrorDataFromExternalLinter.ErrorDataFromExternalLinter");
             this.externalRuleId = externalRuleId;
             this.issueMessage = issueMessage;
             this.filePath = filePath;
@@ -184,22 +182,22 @@ public class FooLintIssuesLoaderSensor implements Sensor {
         }
 
         public String getType() {
-            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getType");
+            LOGGER.info("--- HmmLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getType");
             return externalRuleId;
         }
 
         public String getDescription() {
-            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getDescription");
+            LOGGER.info("--- HmmLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getDescription");
             return issueMessage;
         }
 
         public String getFilePath() {
-            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getFilePath");
+            LOGGER.info("--- HmmLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getFilePath");
             return filePath;
         }
 
         public int getLine() {
-            LOGGER.info("--- FooLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getLine");
+            LOGGER.info("--- HmmLintIssuesLoaderSensor.ErrorDataFromExternalLinter.getLine");
             return line;
         }
 

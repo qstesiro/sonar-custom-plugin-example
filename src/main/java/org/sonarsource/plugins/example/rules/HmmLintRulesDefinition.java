@@ -23,33 +23,34 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
-import org.sonarsource.plugins.example.languages.FooLanguage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-public final class FooLintRulesDefinition implements RulesDefinition {
+import org.sonarsource.plugins.example.languages.HmmLanguage;
 
-    private static final Logger LOGGER = Loggers.get(FooLintRulesDefinition.class);
+public final class HmmLintRulesDefinition implements RulesDefinition {
 
-    private static final String PATH_TO_RULES_XML = "/example/foolint-rules.xml";
+    private static final Logger LOGGER = Loggers.get(HmmLintRulesDefinition.class);
 
-    protected static final String KEY = "foolint";
-    protected static final String NAME = "FooLint";
+    private static final String PATH_TO_RULES_XML = "/example/hmmlint-rules.xml";
 
-    public static final String REPO_KEY = FooLanguage.KEY + "-" + KEY;
-    protected static final String REPO_NAME = FooLanguage.KEY + "-" + NAME;
+    protected static final String KEY = "hmmlint";
+    protected static final String NAME = "HmmLint";
+
+    public static final String REPO_KEY = HmmLanguage.KEY + "-" + KEY;
+    protected static final String REPO_NAME = HmmLanguage.KEY + "-" + NAME;
 
     @Override
     public void define(Context context) {
-        LOGGER.info("--- FooLintRulesDefinition.define");
-        defineRulesForLanguage(context, REPO_KEY, REPO_NAME, FooLanguage.KEY);
+        LOGGER.info("--- HmmLintRulesDefinition.define");
+        defineRulesForLanguage(context, REPO_KEY, REPO_NAME, HmmLanguage.KEY);
     }
 
     private void defineRulesForLanguage(Context context,
                                         String repositoryKey,
                                         String repositoryName,
                                         String languageKey) {
-        LOGGER.info("--- FooLintRulesDefinition.defineRulesForLanguage");
+        LOGGER.info("--- HmmLintRulesDefinition.defineRulesForLanguage");
         // repository页面部分无法显示完整列表(只显示前10个),可以通过规则key进行筛选 ???
         NewRepository repository = context
             .createRepository(repositoryKey, languageKey)
@@ -65,7 +66,7 @@ public final class FooLintRulesDefinition implements RulesDefinition {
     }
 
     protected String rulesDefinitionFilePath() {
-        LOGGER.info("--- FooLintRulesDefinition.rulesDefinitionFilePath");
+        LOGGER.info("--- HmmLintRulesDefinition.rulesDefinitionFilePath");
         return PATH_TO_RULES_XML;
     }
 }

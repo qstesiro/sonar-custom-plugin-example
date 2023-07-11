@@ -1,0 +1,79 @@
+require('dotenv').config({path: '.env'})
+
+const axios = require('axios')
+const DbClient = require('ali-mysql-client');
+const db = new DbClient({
+    host: `${process.env.MYSQL_ADDR}`,
+    port: `${process.env.MYSQL_PORT}`,
+    user: `${process.env.MYSQL_USR}`,
+    password: `${process.env.MYSQL_PWD}`,
+    database: `${process.env.MYSQL_DB}`
+});
+
+const queryProject = async() => {
+    const auth = {
+        auth: {
+            username: `${process.env.SONAR_USR}`,
+            password: `${process.env.SONAR_PWD}`,
+        }
+    }
+    let total = 0, p = 1; const ps = 100
+    let res = null
+    do {
+        let url = `${process.env.SONAR_ADDR}/api/projects/search?p=${p}&ps=${ps}`
+        console.log(url)
+        res = await axios.get(url, auth)
+        if (res.data.components != undefined) {
+            total += res.data.components.length
+            console.log('total: %d, %d', total, res.data.paging.total)
+            p += 1
+            lst = res.data.components
+            const records = []
+            for (let i = 0; i < lst.length; i++) {
+                console.log(lst[i].key)
+                const project = encodeURIComponent(lst[i].key)
+                const url = `${process.env.SONAR_ADDR}/api/project_analyses/search?project=${project}&p=1&ps=1`
+                const res = await axios.get(url, auth)
+                if (res.data.analyses != undefined && res.data.analyses.length == 1) {
+                    if (lst[i].key.indexOf(':') != -1) {
+                        continue
+                    }
+                    const val = lst[i].key.split('.')
+                    if (val.length < 2) {
+                        continue
+                    }
+                    const project = val[0]
+                    const pipeline = val[1]
+                    records.push({
+                        project: project,
+                        pipeline: pipeline,
+                        type: val.length == 2 ? 'quality' : 'vulner',
+                        sonar_host: `${process.env.SONAR_ADDR}`,
+                        sonar_token: `${process.env.SONAR_TOKEN}`,
+                        // created_at: new Date(res.data.analyses[0].date),
+                        updated_at: new Date(res.data.analyses[0].date)
+                    })
+                }
+            }
+            if (records.length > 0) {
+                writeRecords(records)
+            }
+        }
+    } while (total < res.data.paging.total)
+}
+
+const cleanRecords = async() => {
+    const res = await db.delete('sonar_record').where('id', 0, 'gt').execute()
+    console.log(res)
+}
+
+const writeRecords = async(records) => {
+    console.log(records)
+    return await db.insert('sonar_record', records).execute()
+}
+
+~ async function() {
+    await cleanRecords()
+    await queryProject()
+    process.exit(0) // cleanRecords导致无法正常退出具体原因不明 ???
+} ().catch(e => console.log(e))

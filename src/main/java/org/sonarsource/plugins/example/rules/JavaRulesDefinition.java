@@ -40,7 +40,6 @@ public class JavaRulesDefinition implements RulesDefinition {
         NewRepository repository = context
             .createRepository(REPOSITORY, JAVA_LANGUAGE)
             .setName("My Custom Java Analyzer");
-
         NewRule x1Rule = repository
             .createRule(RULE_ON_LINE_1.rule())
             .setName("Stupid rule")

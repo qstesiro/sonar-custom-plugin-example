@@ -40,13 +40,12 @@ public class HelloWorldProperties {
 
     public static List<PropertyDefinition> getProperties() {
         LOGGER.info("--- HelloWorldProperties.getProperties");
-        return asList(
-            PropertyDefinition.builder(HELLO_KEY)
-            .name("Hello")
-            .description("Say Hello")
-            .defaultValue(String.valueOf(false))
-            .category(CATEGORY)
-            .build());
+        return asList(PropertyDefinition.builder(HELLO_KEY)
+                      .name("Hello")
+                      .description("Say Hello")
+                      .defaultValue(String.valueOf(false))
+                      .category(CATEGORY)
+                      .build());
     }
 
 }

@@ -1,10 +1,9 @@
-<foolint-rules>
+<hmmlint-rules>
 	<rule>
-		<key>ExampleRule1</key>
-		<name>Example Rule 1</name>
-		<internalKey>ExampleRule1</internalKey>
-		<description>
-      This is an example of rule defined thru the XML.
+		<key>HmmRule1</key>
+    <internalKey>HmmRule1</internalKey>
+		<name>Hmm Rule 1</name>
+		<description>This is an example of rule defined thru the XML.
 		</description>
 		<severity>BLOCKER</severity>
 		<cardinality>SINGLE</cardinality>
@@ -15,11 +14,10 @@
     <remediationFunctionBaseEffort>2min</remediationFunctionBaseEffort>
 	</rule>
 	<rule>
-		<key>ExampleRule2</key>
-		<name>Example Rule 2</name>
-		<internalKey>ExampleRule2</internalKey>
-		<description>
-      This is a other example of rule defined thru the XML.
+		<key>HmmRule2</key>
+    <internalKey>HmmRule2</internalKey>
+		<name>Hmm Rule 2</name>
+		<description>This is a other example of rule defined thru the XML.
 		</description>
 		<severity>MAJOR</severity>
 		<cardinality>SINGLE</cardinality>
@@ -31,11 +29,10 @@
     <remediationFunctionGapMultiplier>60min</remediationFunctionGapMultiplier>
 	</rule>
 	<rule>
-		<key>ExampleRule3</key>
-		<name>Example Rule 3</name> <!-- max size is 200 -->
-		<internalKey>ExampleRule3</internalKey>
-		<description>
-      This is a other example of rule defined thru the XML.
+		<key>HmmRule3</key>
+    <internalKey>HmmRule3</internalKey>
+		<name>Hmm Rule 3</name> <!-- max size is 200 -->
+		<description>This is a other example of rule defined thru the XML.
 		</description>
 		<severity>CRITICAL</severity>
 		<cardinality>SINGLE</cardinality>
@@ -46,4 +43,4 @@
 	  <remediationFunctionGapMultiplier>10min</remediationFunctionGapMultiplier>
 	  <remediationFunctionBaseEffort>30min</remediationFunctionBaseEffort>
 	</rule>
-</foolint-rules>
+</hmmlint-rules>

@@ -32,14 +32,16 @@ public class ExampleMetrics implements Metrics {
 
     private static final Logger LOGGER = Loggers.get(ExampleMetrics.class);
 
-    public static final Metric<Integer> FILENAME_SIZE = new Metric.Builder("filename_size", "Filename Size", Metric.ValueType.INT)
+    public static final Metric<Integer> FILENAME_SIZE = new Metric
+        .Builder("filename_size", "Filename Size", Metric.ValueType.INT)
         .setDescription("Number of characters of file names")
         .setDirection(Metric.DIRECTION_BETTER)
         .setQualitative(false)
         .setDomain(CoreMetrics.DOMAIN_GENERAL)
         .create();
 
-    public static final Metric<Integer> FILENAME_SIZE_RATING = new Metric.Builder("filename_size_rating", "Filename Size Rating", Metric.ValueType.RATING)
+    public static final Metric<Integer> FILENAME_SIZE_RATING = new Metric
+        .Builder("filename_size_rating", "Filename Size Rating", Metric.ValueType.RATING)
         .setDescription("Rating based on size of file names")
         .setDirection(Metric.DIRECTION_BETTER)
         .setQualitative(true)
@@ -48,7 +50,7 @@ public class ExampleMetrics implements Metrics {
 
     @Override
     public List<Metric> getMetrics() {
-        LOGGER.info("--- ExampleMetrics.getMetrics"); // @6
+        LOGGER.info("--- ExampleMetrics.getMetrics");
         return asList(FILENAME_SIZE, FILENAME_SIZE_RATING);
     }
 }

@@ -24,29 +24,29 @@ import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import org.sonarsource.plugins.example.settings.FooLanguageProperties;
+import org.sonarsource.plugins.example.settings.HmmLanguageProperties;
 
 /**
- * This class defines the fictive Foo language.
+ * This class defines the fictive Hmm language.
  */
-public final class FooLanguage extends AbstractLanguage {
+public final class HmmLanguage extends AbstractLanguage {
 
-    private static final Logger LOGGER = Loggers.get(FooLanguage.class);
+    private static final Logger LOGGER = Loggers.get(HmmLanguage.class);
 
-    public static final String NAME = "Foo";
-    public static final String KEY = "foo";
+    public static final String NAME = "Hmm";
+    public static final String KEY = "hmm";
 
     private final Configuration config;
 
-    public FooLanguage(Configuration config) {
+    public HmmLanguage(Configuration config) {
         super(KEY, NAME);
-        LOGGER.info("--- FooLanguage.FooLanguage");
+        LOGGER.info("--- HmmLanguage.HmmLanguage");
         this.config = config;
     }
 
     @Override
     public String[] getFileSuffixes() {
-        LOGGER.info("--- FooLanguage.getFileSuffixes");
-        return config.getStringArray(FooLanguageProperties.FILE_SUFFIXES_KEY);
+        LOGGER.info("--- HmmLanguage.getFileSuffixes");
+        return config.getStringArray(HmmLanguageProperties.FILE_SUFFIXES_KEY);
     }
 }

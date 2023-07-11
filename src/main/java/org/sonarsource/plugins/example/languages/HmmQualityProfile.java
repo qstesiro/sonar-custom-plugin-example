@@ -26,43 +26,37 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import static org.sonarsource.plugins.example.rules.FooLintRulesDefinition.REPO_KEY;
-import static org.sonarsource.plugins.example.settings.FooLanguageProperties.FILE_SUFFIXES_KEY;
+import static org.sonarsource.plugins.example.rules.HmmLintRulesDefinition.REPO_KEY;
+import static org.sonarsource.plugins.example.settings.HmmLanguageProperties.FILE_SUFFIXES_KEY;
 
 /**
- * Default, BuiltIn Quality Profile for the projects having files of the language "foo"
+ * Default, BuiltIn Quality Profile for the projects having files of the language "hmm"
  */
-public final class FooQualityProfile implements BuiltInQualityProfilesDefinition {
+public final class HmmQualityProfile implements BuiltInQualityProfilesDefinition {
 
-    private static final Logger LOGGER = Loggers.get(FooQualityProfile.class);
+    private static final Logger LOGGER = Loggers.get(HmmQualityProfile.class);
 
     private final Configuration config;
 
-    public FooQualityProfile(Configuration config) {
-        LOGGER.info("--- FooQualityProfile.FooQualityProfile");
+    public HmmQualityProfile(Configuration config) {
+        LOGGER.info("--- HmmQualityProfile.HmmQualityProfile");
         this.config = config;
     }
 
     @Override
     public void define(Context context) {
-        LOGGER.info("--- FooQualityProfile.define");
+        LOGGER.info("--- HmmQualityProfile.define");
         LOGGER.info("--- {}: {}",
                     FILE_SUFFIXES_KEY,
                     config.get(FILE_SUFFIXES_KEY)); // debug ???
-        NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("FooLint Rules", FooLanguage.KEY);
+        NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("HmmLint Rules", HmmLanguage.KEY);
         profile.setDefault(true);
-        NewBuiltInActiveRule rule1 = profile.activateRule(REPO_KEY, "ExampleRule1");
+        NewBuiltInActiveRule rule1 = profile.activateRule(REPO_KEY, "HmmRule1");
         rule1.overrideSeverity("BLOCKER");
-        NewBuiltInActiveRule rule2 = profile.activateRule(REPO_KEY, "ExampleRule2");
-        rule2.overrideSeverity("MAJOR");
-        NewBuiltInActiveRule rule3 = profile.activateRule(REPO_KEY, "ExampleRule3");
-        rule3.overrideSeverity("CRITICAL");
+        NewBuiltInActiveRule rule2 = profile.activateRule(REPO_KEY, "HmmRule2");
+        rule2.overrideSeverity("CRITICAL");
+        NewBuiltInActiveRule rule3 = profile.activateRule(REPO_KEY, "HmmRule3");
+        rule3.overrideSeverity("MAJOR");
         profile.done();
-        // debug ???
-        Map<String, Map<String, BuiltInQualityProfile>> profiles = context.profilesByLanguageAndName();
-        for (String key : profiles.keySet()) {
-            LOGGER.info("--- {}: {}", key, profiles.get(key));
-        }
     }
-
 }
